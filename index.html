@@ -8,16 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* ARIRANG 專輯風格色調 (沉穩傳統古風與質感莫蘭迪紅) */
-            --bg-color: #121113;
-            --card-bg: #1c1a1d;
-            --card-hover: #252227;
+            /* ARIRANG 專輯風格色調 (沉穩傳統古風與質感莫蘭迪紅/熾火色) */
+            --bg-color: #0c0b0d;
+            --card-bg: rgba(26, 23, 28, 0.75);
+            --card-hover: rgba(38, 32, 40, 0.85);
             --text-main: #f4f0ea;
             --text-muted: #a69f96;
             --accent-red: #c04848;
+            --accent-ember: #e65c00;
             --accent-gold: #d4af37;
-            --accent-glow: rgba(192, 72, 72, 0.25);
-            --border-color: #2e2a30;
+            --accent-glow: rgba(192, 72, 72, 0.35);
+            --border-color: rgba(224, 86, 36, 0.25);
         }
 
         * {
@@ -36,12 +37,26 @@
             align-items: center;
             justify-content: space-between;
             padding: 50px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 🖼️ 背景動態 Canvas 畫布 */
+        #arirang-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .container {
             width: 100%;
             max-width: 800px;
             text-align: center;
+            z-index: 1;
         }
 
         /* 頁首標題區塊 */
@@ -54,16 +69,17 @@
             font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 12px;
-            letter-spacing: 1.5px;
-            background: linear-gradient(135deg, #f4f0ea 40%, var(--accent-red) 100%);
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #f4f0ea 30%, #e65c00 70%, #c04848 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(192, 72, 72, 0.3);
         }
 
         header p {
             color: var(--text-muted);
             font-size: 0.95rem;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         /* 卡片網格區塊 */
@@ -76,28 +92,48 @@
 
         .card {
             background-color: var(--card-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 32px 24px;
             text-decoration: none;
             color: var(--text-main);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
+            overflow: hidden;
+        }
+
+        /* 卡片上方火紅光暈微效果 */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(230, 92, 0, 0.15), transparent);
+            transition: 0.6s;
+        }
+
+        .card:hover::before {
+            left: 100%;
         }
 
         .card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-5px);
             background-color: var(--card-hover);
-            border-color: var(--accent-red);
-            box-shadow: 0 12px 30px var(--accent-glow);
+            border-color: rgba(230, 92, 0, 0.6);
+            box-shadow: 0 10px 30px rgba(192, 72, 72, 0.3), 0 0 15px rgba(230, 92, 0, 0.2);
         }
 
         .card-icon {
             font-size: 2.2rem;
             margin-bottom: 16px;
+            filter: drop-shadow(0 0 8px rgba(230, 92, 0, 0.4));
         }
 
         .card h2 {
@@ -120,10 +156,14 @@
             font-size: 0.8rem;
             letter-spacing: 1px;
             opacity: 0.7;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
+
+    <!-- 潑墨與火星粒子動畫 Canvas -->
+    <canvas id="arirang-canvas"></canvas>
 
     <div class="container">
         <!-- 頁面標題 -->
@@ -145,14 +185,155 @@
             <a href="https://jaylaokayyy.github.io/jaylakhschedule/" class="card" target="_blank">
                 <div class="card-icon">🗓️</div>
                 <h2>高雄場行程表</h2>
+                <p>演唱會行程、活動打卡與路線規劃</p>
             </a>
         </main>
     </div>
 
-    <!-- 頁尾 (簡潔版) -->
+    <!-- 頁尾 -->
     <footer>
         <p>Powered by GitHub Pages</p>
     </footer>
 
+    <!-- 🔥 動態潑墨與火星動畫腳本 -->
+    <script>
+        const canvas = document.getElementById('arirang-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        let inkBlobs = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 1. 火星 Ember 粒子類別
+        class Ember {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 50;
+                this.size = Math.random() * 2.5 + 0.8;
+                this.speedY = Math.random() * 1.5 + 0.6;
+                this.speedX = (Math.random() - 0.3) * 0.8; // 隨風往右斜上方飄
+                this.opacity = Math.random() * 0.8 + 0.2;
+                this.fade = Math.random() * 0.008 + 0.003;
+                
+                // 火星顏色：金黃/赤紅/熾橙交替
+                const colors = ['#f39c12', '#e65c00', '#c04848', '#ff4e00', '#ffd700'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                this.opacity -= this.fade;
+
+                if (this.opacity <= 0 || this.y < -10) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // 2. 潑墨雲煙 Ink 類別
+        class InkBlob {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.radius = Math.random() * 180 + 100;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.alpha = Math.random() * 0.08 + 0.02; // 保持暗沈柔和
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < -100 || this.x > width + 100 || this.y < -100 || this.y > height + 100) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                const grad = ctx.createRadialGradient(this.x, this.y, 10, this.x, this.y, this.radius);
+                grad.addColorStop(0, `rgba(45, 18, 25, ${this.alpha})`); // 帶一點赤墨暗紅
+                grad.addColorStop(0.6, `rgba(20, 18, 22, ${this.alpha * 0.5})`);
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // 初始化粒子數量
+        function init() {
+            particles = [];
+            inkBlobs = [];
+
+            const emberCount = Math.floor(width / 15); // 依螢幕寬度自動調整火星數量
+            for (let i = 0; i < emberCount; i++) {
+                particles.push(new Ember());
+            }
+
+            for (let i = 0; i < 6; i++) {
+                inkBlobs.push(new InkBlob());
+            }
+        }
+
+        init();
+
+        // 3. 動畫循環渲染
+        function animate() {
+            // 背景每影格以極高透明度繪製，營造淡淡殘影與黑墨沉穩感
+            ctx.fillStyle = 'rgba(12, 11, 13, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            // 繪製動態潑墨
+            inkBlobs.forEach(blob => {
+                blob.update();
+                blob.draw();
+            });
+
+            // 繪製飛昇火星
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
