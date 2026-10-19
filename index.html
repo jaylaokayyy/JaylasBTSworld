@@ -8,15 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0b0c;
-            --card-bg: rgba(22, 22, 24, 0.75);
-            --card-hover: rgba(32, 32, 35, 0.85);
+            --bg-color: #050508;
+            --card-bg: rgba(20, 18, 28, 0.75);
+            --card-hover: rgba(30, 26, 40, 0.85);
             --text-main: #f4f0ea;
             --text-muted: #a69f96;
+            --accent-purple: #9b51e0;
             --accent-red: #c04848;
             --accent-gold: #d4af37;
-            --accent-glow: rgba(192, 72, 72, 0.25);
-            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-glow: rgba(155, 81, 224, 0.3);
+            --border-color: rgba(155, 81, 224, 0.2);
         }
 
         * {
@@ -39,8 +40,8 @@
             position: relative;
         }
 
-        /* 🖼️ 黑白潑墨暈染背景 Canvas */
-        #ink-canvas {
+        /* 🌌 宇宙銀河背景 Canvas */
+        #galaxy-canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -68,9 +69,10 @@
             font-weight: 700;
             margin-bottom: 12px;
             letter-spacing: 2px;
-            background: linear-gradient(135deg, #f4f0ea 40%, var(--accent-red) 100%);
+            background: linear-gradient(135deg, #f4f0ea 30%, #e0aaff 70%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(155, 81, 224, 0.4);
         }
 
         header p {
@@ -89,8 +91,8 @@
 
         .card {
             background-color: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 32px 24px;
@@ -101,18 +103,20 @@
             flex-direction: column;
             align-items: center;
             position: relative;
+            overflow: hidden;
         }
 
         .card:hover {
             transform: translateY(-4px);
             background-color: var(--card-hover);
-            border-color: var(--accent-red);
-            box-shadow: 0 12px 30px var(--accent-glow);
+            border-color: var(--accent-purple);
+            box-shadow: 0 12px 35px var(--accent-glow);
         }
 
         .card-icon {
             font-size: 2.2rem;
             margin-bottom: 16px;
+            filter: drop-shadow(0 0 8px rgba(155, 81, 224, 0.5));
         }
 
         .card h2 {
@@ -141,8 +145,8 @@
 </head>
 <body>
 
-    <!-- 黑白潑墨暈染背景 Canvas -->
-    <canvas id="ink-canvas"></canvas>
+    <!-- 宇宙銀河與流星背景 Canvas -->
+    <canvas id="galaxy-canvas"></canvas>
 
     <div class="container">
         <!-- 頁面標題 -->
@@ -174,13 +178,14 @@
         <p>Powered by GitHub Pages</p>
     </footer>
 
-    <!-- ✒️ 黑白潑墨暈染動畫腳本 -->
+    <!-- ✨ 宇宙銀河與流星動畫腳本 -->
     <script>
-        const canvas = document.getElementById('ink-canvas');
+        const canvas = document.getElementById('galaxy-canvas');
         const ctx = canvas.getContext('2d');
 
         let width, height;
-        let inks = [];
+        let stars = [];
+        let shootingStars = [];
 
         function resize() {
             width = canvas.width = window.innerWidth;
@@ -190,8 +195,8 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // 墨雲（Ink Blob）類別：模擬黑白宣紙上的墨水暈染與擴散
-        class InkCloud {
+        // 1. 星星（Star）類別：緩慢閃爍與漂浮
+        class Star {
             constructor() {
                 this.reset();
             }
@@ -199,68 +204,126 @@
             reset() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.radius = Math.random() * 200 + 120;
-                this.maxRadius = this.radius + Math.random() * 80;
-                this.growth = Math.random() * 0.15 + 0.05;
-                this.vx = (Math.random() - 0.5) * 0.15;
-                this.vy = (Math.random() - 0.5) * 0.15;
-                this.alpha = 0;
-                this.maxAlpha = Math.random() * 0.06 + 0.015; // 淡淡的黑灰色，不喧賓奪主
-                this.fadingIn = true;
+                this.size = Math.random() * 1.8 + 0.3;
+                this.baseAlpha = Math.random() * 0.7 + 0.2;
+                this.alpha = this.baseAlpha;
+                this.twinkleSpeed = Math.random() * 0.015 + 0.005;
+                this.twinkleDir = Math.random() > 0.5 ? 1 : -1;
+                this.driftX = (Math.random() - 0.5) * 0.05; // 極慢的漂移
+                this.driftY = (Math.random() - 0.5) * 0.05;
             }
 
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                this.alpha += this.twinkleSpeed * this.twinkleDir;
+                if (this.alpha > 0.9 || this.alpha < 0.2) {
+                    this.twinkleDir *= -1;
+                }
+                this.x += this.driftX;
+                this.y += this.driftY;
 
-                if (this.fadingIn) {
-                    this.alpha += 0.0005;
-                    this.radius += this.growth;
-                    if (this.alpha >= this.maxAlpha || this.radius >= this.maxRadius) {
-                        this.fadingIn = false;
-                    }
-                } else {
-                    this.alpha -= 0.0003;
-                    if (this.alpha <= 0) {
-                        this.reset();
-                    }
+                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+                    this.reset();
                 }
             }
 
             draw() {
                 ctx.save();
-                ctx.globalCompositeOperation = 'screen';
-                const grad = ctx.createRadialGradient(this.x, this.y, 5, this.x, this.y, this.radius);
-                // 純黑白灰的墨韻階調
-                grad.addColorStop(0, `rgba(220, 220, 225, ${this.alpha * 1.2})`);
-                grad.addColorStop(0.5, `rgba(120, 120, 130, ${this.alpha * 0.6})`);
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-                ctx.fillStyle = grad;
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
         }
 
+        // 2. 流星（Shooting Star）類別
+        class ShootingStar {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width * 1.2;
+                this.y = Math.random() * (height * 0.4); // 從偏上方劃下
+                this.length = Math.random() * 80 + 40;
+                this.speed = Math.random() * 8 + 6;
+                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.2; // 斜向右下方劃過
+                this.opacity = 1;
+                this.active = false;
+                this.timer = Math.random() * 300 + 100; // 隨機等待時間
+            }
+
+            update() {
+                if (!this.active) {
+                    this.timer--;
+                    if (this.timer <= 0) {
+                        this.active = true;
+                    }
+                    return;
+                }
+
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.opacity -= 0.02;
+
+                if (this.opacity <= 0 || this.x > width || this.y > height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                if (!this.active) return;
+
+                ctx.save();
+                const tailX = this.x - Math.cos(this.angle) * this.length;
+                const tailY = this.y - Math.sin(this.angle) * this.length;
+
+                const grad = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+                grad.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
+                grad.addColorStop(1, 'rgba(155, 81, 224, 0)');
+
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.8;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
         function init() {
-            inks = [];
-            for (let i = 0; i < 8; i++) {
-                inks.push(new InkCloud());
+            stars = [];
+            shootingStars = [];
+
+            const starCount = Math.floor((width * height) / 3500); // 依螢幕大小自動分配星星數量
+            for (let i = 0; i < starCount; i++) {
+                stars.push(new Star());
+            }
+
+            for (let i = 0; i < 3; i++) { // 同時最多存在 3 顆流星
+                shootingStars.push(new ShootingStar());
             }
         }
 
         init();
 
         function animate() {
-            // 背景維持沉穩墨色殘影
-            ctx.fillStyle = 'rgba(11, 11, 12, 0.15)';
+            // 背景殘影繪製，營造深邃宇宙感
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.25)';
             ctx.fillRect(0, 0, width, height);
 
-            inks.forEach(ink => {
-                ink.update();
-                ink.draw();
+            // 繪製與更新星星
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // 繪製與更新流星
+            shootingStars.forEach(ss => {
+                ss.update();
+                ss.draw();
             });
 
             requestAnimationFrame(animate);
