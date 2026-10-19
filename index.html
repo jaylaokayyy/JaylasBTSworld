@@ -8,16 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #050508;
-            --card-bg: rgba(20, 18, 28, 0.75);
-            --card-hover: rgba(30, 26, 40, 0.85);
+            --bg-color: #060309;
+            --card-bg: rgba(22, 14, 32, 0.75);
+            --card-hover: rgba(38, 22, 56, 0.85);
             --text-main: #f4f0ea;
-            --text-muted: #a69f96;
+            --text-muted: #c2b6cf;
             --accent-purple: #9b51e0;
-            --accent-red: #c04848;
-            --accent-gold: #d4af37;
-            --accent-glow: rgba(155, 81, 224, 0.3);
-            --border-color: rgba(155, 81, 224, 0.2);
+            --accent-pink: #d88bf8;
+            --accent-glow: rgba(155, 81, 224, 0.4);
+            --border-color: rgba(184, 115, 230, 0.25);
         }
 
         * {
@@ -40,7 +39,7 @@
             position: relative;
         }
 
-        /* 🌌 宇宙銀河背景 Canvas */
+        /* 🌌 圖片同款紫色銀河與流星背景 Canvas */
         #galaxy-canvas {
             position: fixed;
             top: 0;
@@ -69,10 +68,11 @@
             font-weight: 700;
             margin-bottom: 12px;
             letter-spacing: 2px;
-            background: linear-gradient(135deg, #f4f0ea 30%, #e0aaff 70%, var(--accent-purple) 100%);
+            /* 💜 紫色漸層大標題 */
+            background: linear-gradient(135deg, #f4f0ea 20%, #e0aaff 60%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 25px rgba(155, 81, 224, 0.4);
+            text-shadow: 0 0 30px rgba(155, 81, 224, 0.5);
         }
 
         header p {
@@ -91,10 +91,10 @@
 
         .card {
             background-color: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 32px 24px;
             text-decoration: none;
             color: var(--text-main);
@@ -107,16 +107,16 @@
         }
 
         .card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-5px);
             background-color: var(--card-hover);
-            border-color: var(--accent-purple);
-            box-shadow: 0 12px 35px var(--accent-glow);
+            border-color: var(--accent-pink);
+            box-shadow: 0 12px 35px var(--accent-glow), 0 0 15px rgba(216, 139, 248, 0.2);
         }
 
         .card-icon {
             font-size: 2.2rem;
             margin-bottom: 16px;
-            filter: drop-shadow(0 0 8px rgba(155, 81, 224, 0.5));
+            filter: drop-shadow(0 0 10px rgba(155, 81, 224, 0.6));
         }
 
         .card h2 {
@@ -145,7 +145,7 @@
 </head>
 <body>
 
-    <!-- 宇宙銀河與流星背景 Canvas -->
+    <!-- 紫色銀河星雲與流星 Canvas -->
     <canvas id="galaxy-canvas"></canvas>
 
     <div class="container">
@@ -178,7 +178,7 @@
         <p>Powered by GitHub Pages</p>
     </footer>
 
-    <!-- ✨ 宇宙銀河與流星動畫腳本 -->
+    <!-- ✨ 模擬圖片同款紫色渦旋星雲與流星動畫腳本 -->
     <script>
         const canvas = document.getElementById('galaxy-canvas');
         const ctx = canvas.getContext('2d');
@@ -186,16 +186,65 @@
         let width, height;
         let stars = [];
         let shootingStars = [];
+        let nebulaClouds = [];
 
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
+            init();
         }
 
         window.addEventListener('resize', resize);
-        resize();
 
-        // 1. 星星（Star）類別：緩慢閃爍與漂浮
+        // 1. 紫色渦旋星雲雲氣（Nebula Cloud）
+        class NebulaCloud {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.radius = Math.random() * 250 + 150;
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = (Math.random() - 0.5) * 0.0015;
+                
+                // 圖片同款色彩：深深淺淺的防彈紫色、紫粉與星雲白光
+                const colors = [
+                    'rgba(88, 24, 120, 0.22)',   /* 深防彈紫 */
+                    'rgba(142, 45, 190, 0.18)',  /* 明亮紫 */
+                    'rgba(195, 80, 220, 0.15)',  /* 紫粉色 */
+                    'rgba(60, 10, 80, 0.28)',    /* 宇宙深紫 */
+                    'rgba(230, 200, 255, 0.08)'  /* 星雲中心微光 */
+                ];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.angle += this.speed;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                
+                const grad = ctx.createRadialGradient(
+                    this.x, this.y, 5,
+                    this.x, this.y, this.radius
+                );
+                grad.addColorStop(0, this.color);
+                grad.addColorStop(0.5, this.color.replace(/[\d\.]+\)$/, '0.08)'));
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // 2. 閃爍星星（Star）
         class Star {
             constructor() {
                 this.reset();
@@ -205,31 +254,26 @@
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
                 this.size = Math.random() * 1.8 + 0.3;
-                this.baseAlpha = Math.random() * 0.7 + 0.2;
+                this.baseAlpha = Math.random() * 0.8 + 0.2;
                 this.alpha = this.baseAlpha;
-                this.twinkleSpeed = Math.random() * 0.015 + 0.005;
+                this.twinkleSpeed = Math.random() * 0.012 + 0.004;
                 this.twinkleDir = Math.random() > 0.5 ? 1 : -1;
-                this.driftX = (Math.random() - 0.5) * 0.05; // 極慢的漂移
-                this.driftY = (Math.random() - 0.5) * 0.05;
+                
+                // 部分星星帶有微微淡紫色光暈
+                this.color = Math.random() > 0.3 ? '#ffffff' : '#e2bbfd';
             }
 
             update() {
                 this.alpha += this.twinkleSpeed * this.twinkleDir;
-                if (this.alpha > 0.9 || this.alpha < 0.2) {
+                if (this.alpha > 0.95 || this.alpha < 0.2) {
                     this.twinkleDir *= -1;
-                }
-                this.x += this.driftX;
-                this.y += this.driftY;
-
-                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-                    this.reset();
                 }
             }
 
             draw() {
                 ctx.save();
                 ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -237,7 +281,7 @@
             }
         }
 
-        // 2. 流星（Shooting Star）類別
+        // 3. 流星（Shooting Star）
         class ShootingStar {
             constructor() {
                 this.reset();
@@ -245,13 +289,13 @@
 
             reset() {
                 this.x = Math.random() * width * 1.2;
-                this.y = Math.random() * (height * 0.4); // 從偏上方劃下
-                this.length = Math.random() * 80 + 40;
+                this.y = Math.random() * (height * 0.4);
+                this.length = Math.random() * 90 + 50;
                 this.speed = Math.random() * 8 + 6;
-                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.2; // 斜向右下方劃過
+                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.2;
                 this.opacity = 1;
                 this.active = false;
-                this.timer = Math.random() * 300 + 100; // 隨機等待時間
+                this.timer = Math.random() * 250 + 80;
             }
 
             update() {
@@ -265,7 +309,7 @@
 
                 this.x += Math.cos(this.angle) * this.speed;
                 this.y += Math.sin(this.angle) * this.speed;
-                this.opacity -= 0.02;
+                this.opacity -= 0.018;
 
                 if (this.opacity <= 0 || this.x > width || this.y > height) {
                     this.reset();
@@ -281,10 +325,11 @@
 
                 const grad = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
                 grad.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
+                grad.addColorStop(0.4, `rgba(216, 139, 248, ${this.opacity * 0.8})`);
                 grad.addColorStop(1, 'rgba(155, 81, 224, 0)');
 
                 ctx.strokeStyle = grad;
-                ctx.lineWidth = 1.8;
+                ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(this.x, this.y);
                 ctx.lineTo(tailX, tailY);
@@ -296,31 +341,45 @@
         function init() {
             stars = [];
             shootingStars = [];
+            nebulaClouds = [];
 
-            const starCount = Math.floor((width * height) / 3500); // 依螢幕大小自動分配星星數量
+            // 建立紫色星雲層
+            for (let i = 0; i < 12; i++) {
+                nebulaClouds.push(new NebulaCloud());
+            }
+
+            // 建立繁星
+            const starCount = Math.floor((width * height) / 3000);
             for (let i = 0; i < starCount; i++) {
                 stars.push(new Star());
             }
 
-            for (let i = 0; i < 3; i++) { // 同時最多存在 3 顆流星
+            // 建立流星
+            for (let i = 0; i < 3; i++) {
                 shootingStars.push(new ShootingStar());
             }
         }
 
-        init();
+        resize();
 
         function animate() {
-            // 背景殘影繪製，營造深邃宇宙感
-            ctx.fillStyle = 'rgba(5, 5, 8, 0.25)';
+            // 暗紫宇宙底色殘影
+            ctx.fillStyle = 'rgba(6, 3, 9, 0.22)';
             ctx.fillRect(0, 0, width, height);
 
-            // 繪製與更新星星
+            // 1. 繪製紫粉星雲
+            nebulaClouds.forEach(cloud => {
+                cloud.update();
+                cloud.draw();
+            });
+
+            // 2. 繪製閃爍星星
             stars.forEach(star => {
                 star.update();
                 star.draw();
             });
 
-            // 繪製與更新流星
+            // 3. 繪製流星
             shootingStars.forEach(ss => {
                 ss.update();
                 ss.draw();
