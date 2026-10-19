@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💜 我的追星小天地 | BTS Starlight Space</title>
-    <!-- 引入 Google Fonts 質感字型 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>Jayla的防彈精神時光屋</title>
+    <!-- 引入質感字型 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f0e17;
-            --card-bg: #1a1926;
-            --text-main: #fffffe;
-            --text-muted: #a7a9be;
-            --accent-purple: #9b51e0;
-            --accent-glow: rgba(155, 81, 224, 0.4);
-            --border-color: #2e2b44;
+            /* ARIRANG 專輯風格色調 (沉穩傳統古風與質感莫蘭迪紅) */
+            --bg-color: #121113;
+            --card-bg: #1c1a1d;
+            --card-hover: #252227;
+            --text-main: #f4f0ea;
+            --text-muted: #a69f96;
+            --accent-red: #c04848;
+            --accent-gold: #d4af37;
+            --accent-glow: rgba(192, 72, 72, 0.25);
+            --border-color: #2e2a30;
         }
 
         * {
@@ -32,7 +35,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 40px 20px;
+            padding: 50px 20px;
         }
 
         .container {
@@ -41,89 +44,82 @@
             text-align: center;
         }
 
-        /* 標頭區塊 */
+        /* 頁首標題區塊 */
         header {
-            margin-bottom: 40px;
+            margin-bottom: 45px;
         }
 
         header h1 {
+            font-family: 'Noto Serif TC', serif;
             font-size: 2.2rem;
             font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #fffffe 30%, #b886fc 100%);
+            margin-bottom: 12px;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #f4f0ea 40%, var(--accent-red) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         header p {
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 0.95rem;
             letter-spacing: 1px;
         }
 
-        /* 連結卡片網格 */
+        /* 卡片網格區塊 */
         .grid-menu {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 22px;
             margin-bottom: 40px;
         }
 
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 30px 20px;
+            border-radius: 12px;
+            padding: 32px 24px;
             text-decoration: none;
             color: var(--text-main);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-purple);
-            box-shadow: 0 10px 25px var(--accent-glow);
+            transform: translateY(-4px);
+            background-color: var(--card-hover);
+            border-color: var(--accent-red);
+            box-shadow: 0 12px 30px var(--accent-glow);
         }
 
         .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 2.2rem;
+            margin-bottom: 16px;
         }
 
         .card h2 {
-            font-size: 1.25rem;
-            font-weight: 500;
-            margin-bottom: 8px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-main);
         }
 
         .card p {
             color: var(--text-muted);
             font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        /* 預留未來擴充用的空白卡片樣式（可選） */
-        .card.coming-soon {
-            opacity: 0.6;
-            border-style: dashed;
-            pointer-events: none;
+            line-height: 1.5;
         }
 
         /* 頁尾 */
         footer {
             color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 20px;
-            letter-spacing: 0.5px;
-        }
-
-        footer span {
-            color: var(--accent-purple);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -132,39 +128,31 @@
     <div class="container">
         <!-- 頁面標題 -->
         <header>
-            <h1>💜 ɪᴍ_ᴊʟ'ꜱ ꜱᴛᴀʀʟɪɢʜᴛ ꜱᴘᴀᴄᴇ</h1>
-            <p>記錄美好追星日常與專屬應援指南</p>
+            <h1>Jayla的防彈精神時光屋</h1>
+            <p>紀錄屬於我們的專屬時光與應援指南</p>
         </header>
 
-        <!-- 導航卡片區塊 (未來可隨時在這裡增加新的 <a> 卡片) -->
+        <!-- 主選單區塊 -->
         <main class="grid-menu">
-            <!-- 專案 1：高雄場應援物指南 -->
+            <!-- 連結 1：高雄場應援物指南 -->
             <a href="https://jaylaokayyy.github.io/twkhfreebiesbyjla/" class="card" target="_blank">
-                <div class="card-icon">🎁</div>
+                <div class="card-icon">🏮</div>
                 <h2>高雄場應援物指南</h2>
-                <p>統整高雄演唱會的各種精美應援領取資訊與地圖指南</p>
+                <p>收錄高雄場演唱會應援物領取地圖、發放資訊與詳細指南</p>
             </a>
 
-            <!-- 專案 2：行程活動表 -->
+            <!-- 連結 2：高雄場行程表 -->
             <a href="https://jaylaokayyy.github.io/" class="card" target="_blank">
-                <div class="card-icon">📅</div>
-                <h2>行程活動表</h2>
-                <p>詳細的演唱會行程、活動時間與追星計畫時程總覽</p>
+                <div class="card-icon">🗓️</div>
+                <h2>高雄場行程表</h2>
+                <p>演唱會行程規劃、周邊活動時間表與交通行程規劃</p>
             </a>
-
-            <!-- 未來擴充範例：如果之後新增其他網站，直接複製下方這段修改網址和文字即可
-            <a href="你的新網址" class="card" target="_blank">
-                <div class="card-icon">✨</div>
-                <h2>新專案標題</h2>
-                <p>新專案的簡短說明文字...</p>
-            </a>
-            -->
         </main>
     </div>
 
-    <!-- 頁尾 -->
+    <!-- 頁尾 (簡潔版) -->
     <footer>
-        <p>A.R.M.Y 💜 Forever Keep Going | Powered by <span>GitHub Pages</span></p>
+        <p>Powered by GitHub Pages</p>
     </footer>
 
 </body>
